@@ -80,7 +80,10 @@ export function TopBar({
             )}
           </button>
 
-          <Link to="/overview" className="w-[10.5rem] shrink-0 max-md:w-[8.5rem]">
+          <Link
+            to="/overview"
+            className="w-[10.5rem] shrink-0 max-md:w-[8.5rem]"
+          >
             <Logo />
           </Link>
 
@@ -132,7 +135,7 @@ export function TopBar({
               title={
                 token
                   ? "An API key is set for this session"
-                  : "No API key set — add one in any Try it panel"
+                  : "No API key set. Add one in any Try it panel"
               }
               className={cn(
                 "flex items-center gap-1.5 rounded-xl border px-2.5 py-2 text-[0.6875rem] font-medium max-md:hidden",

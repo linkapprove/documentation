@@ -5,8 +5,13 @@ import { Sidebar } from "@/components/sidebar";
 import Overview from "@/pages/overview";
 import Quickstart from "@/pages/quickstart";
 import Authentication from "@/pages/authentication";
+import Channels from "@/pages/channels";
 import Programs from "@/pages/programs";
 import TrackingLinks from "@/pages/tracking-links";
+import Reports from "@/pages/reports";
+import Payments from "@/pages/payments";
+import Account from "@/pages/account";
+import Webhooks from "@/pages/webhooks";
 import Errors from "@/pages/errors";
 import { cn } from "@/utils";
 
@@ -46,8 +51,13 @@ export default function App() {
         <Route path="/overview" element={<Overview />} />
         <Route path="/quickstart" element={<Quickstart />} />
         <Route path="/authentication" element={<Authentication />} />
+        <Route path="/channels" element={<Channels />} />
         <Route path="/programs" element={<Programs />} />
         <Route path="/tracking-links" element={<TrackingLinks />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/payments" element={<Payments />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/webhooks" element={<Webhooks />} />
         <Route path="/errors" element={<Errors />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />
       </Routes>

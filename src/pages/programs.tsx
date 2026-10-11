@@ -4,7 +4,7 @@ import { ApiRunner } from "@/components/api-runner";
 import { Callout, Code, Lead, List, P, Section, Sub } from "@/components/prose";
 import { Endpoint, ParamsTable } from "@/components/endpoint";
 import { ENDPOINTS } from "@/constants/endpoints";
-import { pageByPath } from "@/constants/navigation";
+import { RATE_LIMIT_PER_MINUTE, pageByPath } from "@/constants/navigation";
 
 const PAGE = pageByPath("/programs");
 
@@ -16,9 +16,7 @@ const PROGRAM_OBJECT = [
   "id": 4821,
   "merchantName": "Northpeak Outdoors",
   "merchantDomain": "northpeak.com",
-  "description": "Technical outerwear and camping gear.",
-  "category": "sports_outdoors",
-  "network": "impact",
+  "category": "sports_outdoor",
   "payoutType": "cps",
   "payout": "8.00",
   "payoutUnit": "percent",
@@ -26,13 +24,10 @@ const PROGRAM_OBJECT = [
   "cookieDays": 30,
   "approvalType": "manual",
   "status": "approved",
-  "regions": ["US", "CA"],
   "supportsDeepLinks": true,
-  "logoUrl": "https://cdn.linkapprove.com/merchants/4821.png",
-  "termsUrl": "https://northpeak.com/affiliates/terms",
-  "isDeleted": false,
-  "createdAt": "2025-11-04T18:22:11Z",
-  "updatedAt": "2026-08-14T06:01:49Z"
+  "description": "Technical outerwear and camping gear.",
+  "regions": ["US", "CA"],
+  "logoUrl": "https://cdn.linkapprove.com/merchants/4821.png"
 }`,
   },
 ];
@@ -46,17 +41,23 @@ const OBJECT_FIELDS = [
   },
   {
     name: "merchantName",
-    type: "string",
+    type: "string | null",
     description: "The brand as the merchant wants it displayed.",
   },
   {
-    name: "network",
-    type: "enum",
+    name: "merchantDomain",
+    type: "string | null",
+    description:
+      "The merchant's site, without www. Deep links must stay on it or a subdomain of it.",
+  },
+  {
+    name: "category",
+    type: "string | null",
     description: (
       <>
-        Where the campaign was ingested from — <Code>impact</Code>,{" "}
-        <Code>partnerize</Code>, <Code>admitad</Code>, <Code>takeads</Code>,{" "}
-        <Code>linkbux</Code> or <Code>flexoffers</Code>.
+        The upstream network's own category as a lowercase slug, e.g.{" "}
+        <Code>apparel_footwear_accessories</Code>. Null when the network sends
+        none.
       </>
     ),
   },
@@ -66,38 +67,53 @@ const OBJECT_FIELDS = [
     description: (
       <>
         <Code>cps</Code> pays a share of the sale, <Code>cpc</Code> pays per
-        click, <Code>cpl</Code> pays per lead.
+        click.
       </>
     ),
   },
   {
     name: "payout",
-    type: "string",
-    description: "Decimal string. Read together with payoutUnit.",
-  },
-  {
-    name: "payoutUnit",
-    type: "enum",
+    type: "string | null",
     description: (
       <>
-        <Code>percent</Code> for a revenue share, <Code>fixed</Code> for a flat
-        amount in <Code>currency</Code>.
+        The most you can earn: the program's highest commission tier with
+        LinkApprove's cut already taken off, so it is your 70% share of the
+        network's rate. A two-decimal string such as <Code>"8.00"</Code>, read
+        together with <Code>payoutUnit</Code>. Null when the network publishes
+        no rate.
       </>
     ),
   },
   {
-    name: "cookieDays",
-    type: "integer",
+    name: "payoutUnit",
+    type: "enum | null",
+    description: (
+      <>
+        <Code>percent</Code> for a revenue share, <Code>fixed</Code> for a flat
+        amount. Null when the network does not say which.
+      </>
+    ),
+  },
+  {
+    name: "currency",
+    type: "string | null",
     description:
-      "Attribution window. A conversion inside it credits your click.",
+      "Currency of the payout, when the network states one; null otherwise. ISO 4217, e.g. USD.",
+  },
+  {
+    name: "cookieDays",
+    type: "integer | null",
+    description:
+      "Attribution window in days. A conversion inside it credits your click. Null when the network does not say.",
   },
   {
     name: "approvalType",
-    type: "enum",
+    type: "enum | null",
     description: (
       <>
         <Code>auto</Code> approves the instant you apply; <Code>manual</Code>{" "}
-        waits on the merchant.
+        goes to the LinkApprove team for review. Null when the network does not
+        say.
       </>
     ),
   },
@@ -107,8 +123,9 @@ const OBJECT_FIELDS = [
     description: (
       <>
         Your application state for this program: <Code>not_applied</Code>,{" "}
-        <Code>pending</Code>, <Code>approved</Code>, <Code>rejected</Code> or{" "}
-        <Code>paused</Code>.
+        <Code>pending</Code>, <Code>approved</Code>, <Code>rejected</Code>,{" "}
+        <Code>paused</Code>, <Code>suspended</Code> or <Code>expired</Code>.
+        Scoped to <Code>channelId</Code> when you pass it.
       </>
     ),
   },
@@ -116,12 +133,23 @@ const OBJECT_FIELDS = [
     name: "supportsDeepLinks",
     type: "boolean",
     description:
-      "Whether the upstream network honours a destinationUrl on a tracking link.",
+      "Whether a tracking link for this program accepts a destinationUrl.",
+  },
+  {
+    name: "description",
+    type: "string | null",
+    description: "Retrieve only. The merchant's own pitch.",
   },
   {
     name: "regions",
     type: "string[]",
-    description: "ISO country codes the merchant ships or converts in.",
+    description:
+      "Retrieve only. ISO 3166-1 alpha-2 codes the merchant ships or converts in.",
+  },
+  {
+    name: "logoUrl",
+    type: "string | null",
+    description: "Retrieve only. The merchant's logo.",
   },
 ];
 
@@ -139,29 +167,26 @@ const LIST_PARAMS = [
   {
     name: "search",
     type: "string",
-    description: "Fuzzy match against merchant name and domain.",
+    description: "Matches merchant name or domain.",
   },
   {
     name: "category",
     type: "string",
     description: (
       <>
-        Filter by category slug, e.g. <Code>fashion</Code> or{" "}
-        <Code>sports_outdoors</Code>.
+        The network's category as a slug: lowercased, <Code>&amp;amp;</Code>{" "}
+        decoded, every run of other characters turned into <Code>_</Code>. An
+        open set, e.g. <Code>apparel_footwear_accessories</Code> or{" "}
+        <Code>sports_outdoor</Code>.
       </>
     ),
-  },
-  {
-    name: "network",
-    type: "enum",
-    description: "Restrict to campaigns from one upstream network.",
   },
   {
     name: "payoutType",
     type: "enum",
     description: (
       <>
-        One of <Code>cps</Code>, <Code>cpc</Code>, <Code>cpl</Code>.
+        <Code>cps</Code> or <Code>cpc</Code>.
       </>
     ),
   },
@@ -176,9 +201,60 @@ const LIST_PARAMS = [
     ),
   },
   {
+    name: "channelId",
+    type: "integer",
+    description: (
+      <>
+        Report <Code>status</Code> for this channel. Without it,{" "}
+        <Code>status</Code> is the best state across all your channels.
+      </>
+    ),
+  },
+  {
     name: "status",
     type: "enum",
-    description: "Filter by your own application state for the program.",
+    description: (
+      <>
+        Only programs in this state: <Code>not_applied</Code>,{" "}
+        <Code>pending</Code>, <Code>approved</Code>, <Code>rejected</Code>,{" "}
+        <Code>paused</Code>, <Code>suspended</Code> or <Code>expired</Code>.
+        Matches the <Code>status</Code> each program comes back with, so it
+        follows <Code>channelId</Code> too.
+      </>
+    ),
+  },
+];
+
+const APPLICATION_LIST_PARAMS = [
+  {
+    name: "status",
+    type: "enum",
+    description: (
+      <>
+        <Code>pending</Code>, <Code>approved</Code>, <Code>rejected</Code>,{" "}
+        <Code>paused</Code>, <Code>suspended</Code> or <Code>expired</Code>.
+      </>
+    ),
+  },
+  {
+    name: "programId",
+    type: "integer",
+    description: "Only applications to this program.",
+  },
+  {
+    name: "channelId",
+    type: "integer",
+    description: "Only applications from this channel.",
+  },
+  {
+    name: "page",
+    type: "integer",
+    description: "1-based page number. Defaults to 1.",
+  },
+  {
+    name: "size",
+    type: "integer",
+    description: "Results per page, 1–100. Defaults to 10.",
   },
 ];
 
@@ -194,13 +270,13 @@ const APPLY_PARAMS = [
     type: "integer",
     required: true,
     description:
-      "A verified, approved channel of yours. Applications are per channel, not per account.",
+      "An approved channel of yours that has completed verification. Applications are per channel, not per account.",
   },
   {
     name: "note",
     type: "string",
     description:
-      "Optional message to the merchant — traffic sources, audience size, why you fit.",
+      "Optional, up to 500 characters. Accepted for forward compatibility but not stored. Nobody reads it today.",
   },
 ];
 
@@ -213,7 +289,7 @@ export default function Programs() {
         panel={<CodeBlock samples={PROGRAM_OBJECT} />}
       >
         <Lead>
-          A program is a merchant campaign as LinkApprove presents it — the
+          A program is a merchant campaign as LinkApprove presents it: the
           upstream network's terms, normalised into one shape so you do not care
           which network it came from.
         </Lead>
@@ -222,8 +298,9 @@ export default function Programs() {
 
         <Callout variant="info" title="status is about you, not the merchant">
           <Code>status</Code> reflects your application state for the program on
-          your channels — not whether the campaign itself is live. A campaign
-          that goes dark upstream disappears from the catalogue entirely.
+          your channels, not whether the campaign itself is live. A program that
+          is removed or deactivated stops appearing in the list, and retrieving
+          it returns <Code>404</Code>.
         </Callout>
       </Section>
 
@@ -245,16 +322,18 @@ export default function Programs() {
           items={[
             <>
               Read <Code>pages</Code> from the first response and walk{" "}
-              <Code>page</Code> up to it — do not guess at an end.
+              <Code>page</Code> up to it. Do not guess at an end.
             </>,
             <>
-              Use <Code>size=100</Code> for a full sync. That is 137 requests
-              for a 13,700-campaign catalogue, comfortably inside the rate
-              limit.
+              Use <Code>size=100</Code> for a full sync. A 13,700-campaign
+              catalogue is 137 requests. At {RATE_LIMIT_PER_MINUTE} a minute
+              that takes just over a minute, so pace your requests or expect a{" "}
+              <Code>429</Code> and honour its <Code>Retry-After</Code>.
             </>,
             <>
-              Ordering is newest-first and stable, so a page you already read
-              will not reshuffle mid-sync.
+              Pagination is offset-based, newest first. Programs added or
+              removed while you sync shift rows between pages, so a row can
+              repeat or be skipped, so dedupe by <Code>id</Code>.
             </>,
           ]}
         />
@@ -267,13 +346,15 @@ export default function Programs() {
       >
         <Endpoint method="GET" path="/programs/{id}" scope="programs:read" />
         <P>
-          Returns a single program with the same shape as a list entry, plus the
-          merchant's full terms and the creatives attached to it.
+          Returns a single program with the same fields as a list entry, plus{" "}
+          <Code>description</Code>, <Code>regions</Code> and{" "}
+          <Code>logoUrl</Code>. Pass <Code>channelId</Code> to scope{" "}
+          <Code>status</Code> to one channel.
         </P>
         <P>
           An unknown or unavailable ID returns <Code>404</Code> with{" "}
           <Code>program_not_found</Code>. We do not distinguish "does not exist"
-          from "not yours" — both are a 404.
+          from "not yours". Both are a 404.
         </P>
       </Section>
 
@@ -300,30 +381,79 @@ export default function Programs() {
           items={[
             <>
               <Code>approvalType: "auto"</Code> comes back <Code>approved</Code>{" "}
-              immediately and you can mint links in the same script run.
+              with <Code>decidedAt</Code> equal to <Code>appliedAt</Code>, and
+              you can mint links in the same script run.
             </>,
             <>
               <Code>approvalType: "manual"</Code> comes back{" "}
-              <Code>pending</Code>. Poll the program, or subscribe to the{" "}
-              <Code>application.decided</Code> webhook and stop polling.
+              <Code>pending</Code> with <Code>decidedAt: null</Code> while the
+              LinkApprove team reviews it. Poll{" "}
+              <Code>GET /programs/{"{id}"}?channelId=</Code> until{" "}
+              <Code>status</Code> changes.
             </>,
             <>
-              A rejection carries <Code>rejectionReason</Code>. You may re-apply
-              once the reason is addressed.
+              <Code>rejectionReason</Code> is always <Code>null</Code> for now.
             </>,
             <>
-              Applying twice for the same program and channel returns{" "}
-              <Code>409</Code> rather than creating a duplicate.
+              Applying again for the same program and channel returns{" "}
+              <Code>409</Code> <Code>duplicate_application</Code> with the
+              existing <Code>applicationId</Code> and its <Code>status</Code>,
+              whatever that status is, rejected included.
             </>,
           ]}
         />
 
-        <Callout variant="tip" title="Bulk apply">
-          Send an array of <Code>{"{ programId, channelId }"}</Code> pairs to{" "}
-          <Code>/programs/applications/bulk</Code> to submit up to 50 at once.
-          Each entry succeeds or fails independently and the response reports
-          both.
+        <Sub>When it fails</Sub>
+        <List
+          items={[
+            <>
+              <Code>404</Code> <Code>program_not_found</Code>: no such program.
+            </>,
+            <>
+              <Code>404</Code> <Code>channel_not_found</Code>: the channel does
+              not exist or is not yours.
+            </>,
+            <>
+              <Code>403</Code> <Code>channel_not_verified</Code>: the channel is
+              not approved, or has a verification step it has not completed.
+            </>,
+          ]}
+        />
+
+        <Callout variant="warning" title="A rejection is final through the API">
+          There is no way to apply again to a program on a channel that already
+          has an application, rejected or not. Contact support if you think a
+          rejection should be reconsidered.
         </Callout>
+      </Section>
+
+      <Section
+        id="list-applications"
+        title="List applications"
+        panel={<ApiRunner endpoint={ENDPOINTS.listApplications} />}
+      >
+        <Endpoint
+          method="GET"
+          path="/programs/applications"
+          scope="programs:read"
+        />
+        <P>
+          Returns every application you have made, newest first, across all your
+          channels. Use it to pick up decisions on manual programs in one call
+          instead of polling each program.
+        </P>
+
+        <ParamsTable
+          title="Query parameters"
+          params={APPLICATION_LIST_PARAMS}
+        />
+
+        <P>
+          Each row is the application object you got back when applying, plus{" "}
+          <Code>merchantName</Code>. <Code>decidedAt</Code> is when the
+          application left <Code>pending</Code>, or <Code>null</Code> while it
+          is still waiting.
+        </P>
       </Section>
     </DocLayout>
   );

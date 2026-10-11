@@ -18,16 +18,21 @@ import {
   generateSamples,
   type TParamValues,
 } from "@/constants/code-generators";
-import { API_KEYS_URL } from "@/constants/navigation";
+import {
+  API_KEYS_URL,
+  MONTHLY_QUOTA,
+  RATE_LIMIT_PER_MINUTE,
+} from "@/constants/navigation";
 import type { TEndpointSpec } from "@/constants/endpoints";
 import { cn } from "@/utils";
 
 const SIMULATED_LATENCY_MS = 620;
 const RESPONSE_HEADERS = `content-type: application/json; charset=utf-8
-x-ratelimit-limit: 600
-x-ratelimit-remaining: 583
+x-ratelimit-limit: ${RATE_LIMIT_PER_MINUTE}
+x-ratelimit-remaining: 103
 x-ratelimit-reset: 1755511260
-x-request-id: req_8f21c4de90b7`;
+x-quota-used: 128402
+x-quota-limit: ${MONTHLY_QUOTA}`;
 
 type TRunState = "idle" | "running" | "done";
 
@@ -130,7 +135,7 @@ export function ApiRunner({ endpoint }: { endpoint: TEndpointSpec }) {
                 type={isTokenVisible ? "text" : "password"}
                 value={token}
                 onChange={(event) => setToken(event.target.value)}
-                placeholder="lk_…"
+                placeholder="la_…"
                 spellCheck={false}
                 autoComplete="off"
                 className="min-w-0 flex-1 bg-transparent font-mono text-[0.75rem] text-ink outline-none"
@@ -311,8 +316,8 @@ export function ApiRunner({ endpoint }: { endpoint: TEndpointSpec }) {
         ) : null}
 
         <p className="border-t border-line bg-elevated px-3.5 py-2 text-[0.625rem] leading-snug text-subtle">
-          The public API has not shipped yet — the runner replays the documented
-          sample response rather than calling a live server.
+          This panel replays the documented sample response and does not call
+          the API. Copy a code sample to send a real request with your key.
         </p>
       </div>
     </div>

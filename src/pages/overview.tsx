@@ -25,7 +25,15 @@ const PAGE = pageByPath("/overview");
 
 const HELLO_WORLD = generateSamples(
   ENDPOINTS.listPrograms,
-  { search: "", category: "", payoutType: "", approvalType: "", page: "1", size: "1" },
+  {
+    search: "",
+    category: "",
+    payoutType: "",
+    approvalType: "",
+    channelId: "",
+    page: "1",
+    size: "1",
+  },
   ""
 );
 
@@ -38,27 +46,27 @@ const CAPABILITIES = [
   {
     icon: Link2,
     title: "Tracking links",
-    body: "Mint a /go redirect for any approved program, with sub IDs for your own attribution and deep links to a product page.",
+    body: "Mint a go.linkapprove.com redirect for any approved program, with sub IDs for your own attribution and deep links to a product page.",
   },
   {
     icon: BarChart3,
     title: "Reporting",
-    body: "Clicks, conversions, commission and reversal data — the same numbers your dashboard renders, grouped how you want them.",
+    body: "Clicks, conversions and commission. The same numbers your dashboard renders, grouped by program, channel, day or sub ID.",
   },
   {
     icon: Wallet,
     title: "Payments",
-    body: "Balances by state, credited commissions, withdrawal requests and the invoice attached to every payout.",
+    body: "Your balance by state, every credited commission, and each withdrawal with its status history and invoice.",
   },
   {
     icon: Webhook,
     title: "Webhooks",
-    body: "Get pushed a conversion the moment a network reports it, instead of polling on a schedule you had to guess at.",
+    body: "Get a signed POST when a conversion arrives or changes status, instead of polling on a schedule you had to guess at.",
   },
   {
     icon: Zap,
     title: "Built for scripts",
-    body: "Predictable envelopes, page/size pagination and stable IDs — the boring things that make automation hold up.",
+    body: "Predictable envelopes, page/size pagination and stable IDs, so automation holds up.",
   },
 ];
 
@@ -71,22 +79,25 @@ const FLOW = [
   {
     step: "02",
     label: "Get approved",
-    detail: "Auto programs clear instantly; manual ones wait on the merchant.",
+    detail:
+      "Auto programs clear instantly; manual ones are reviewed by the LinkApprove team.",
   },
   {
     step: "03",
     label: "Mint a link",
-    detail: "Issue a /go tracking link against the approved program.",
+    detail:
+      "Issue a go.linkapprove.com tracking link against the approved program.",
   },
   {
     step: "04",
     label: "Place it",
-    detail: "Your site, newsletter or social post — wherever the traffic is.",
+    detail: "Your site, newsletter or social post, wherever the traffic is.",
   },
   {
     step: "05",
     label: "Get paid",
-    detail: "Conversions credit your balance, then you request a withdrawal.",
+    detail:
+      "Conversions credit your balance, then you withdraw from the dashboard.",
   },
 ];
 
@@ -191,7 +202,7 @@ export default function Overview() {
       >
         <Lead>
           The LinkApprove API is the machine-readable version of the publisher
-          dashboard. Anything you can click, a script can do — apply to a
+          dashboard. Anything you can click, a script can do: apply to a
           program, mint a tracking link, pull yesterday's numbers, request a
           payout.
         </Lead>
@@ -250,10 +261,8 @@ export default function Overview() {
         }
       >
         <P>
-          LinkApprove aggregates campaigns from external affiliate networks —
-          Impact, Partnerize, Admitad, Takeads, Linkbux, FlexOffers — and
-          re-presents them under one roof. One dashboard, one payout, one API,
-          regardless of which network the campaign came from.
+          LinkApprove brings merchant programs together under one roof. One
+          dashboard, one payout, one API, whichever merchant you promote.
         </P>
         <P>
           The publisher lifecycle is five steps, and every one of them has an
@@ -284,7 +293,7 @@ export default function Overview() {
       >
         <Sub>The response envelope</Sub>
         <P>
-          Every response — success or failure — has the same three top-level
+          Every response, success or failure, has the same three top-level
           fields. List endpoints nest a paginated payload inside{" "}
           <Code>data</Code>, so a list is always <Code>data.data</Code>.
         </P>
@@ -304,18 +313,27 @@ export default function Overview() {
             </>,
             <>
               <strong className="font-medium text-ink">Money</strong> is a
-              decimal string in USD (<Code>"128.40"</Code>) — never a float, so
-              nothing rounds on the way to you.
+              two-decimal string (<Code>"128.40"</Code>), never a float, so
+              nothing rounds on the way to you. Report earnings and conversion
+              webhooks carry the <Code>currency</Code> the network reported, and
+              amounts in different currencies are never summed. Balances,
+              transactions and withdrawals are your LinkApprove balance and
+              carry no currency field.
             </>,
             <>
-              <strong className="font-medium text-ink">IDs</strong> are stable
-              integers. A program keeps its ID even when the upstream network
-              re-issues its own.
+              <strong className="font-medium text-ink">Versioning</strong>:
+              every response carries{" "}
+              <Code>LinkApprove-Version: {API_VERSION}</Code>. Log it alongside
+              anything you report to support.
             </>,
             <>
-              <strong className="font-medium text-ink">Deletes</strong> are soft.
-              Objects come back with <Code>isDeleted: true</Code> rather than
-              vanishing.
+              <strong className="font-medium text-ink">IDs</strong> are
+              integers.
+            </>,
+            <>
+              <strong className="font-medium text-ink">Removed programs</strong>
+              : a program that is removed or deactivated stops appearing in
+              lists, and retrieving it returns <Code>404</Code>.
             </>,
           ]}
         />

@@ -1,17 +1,23 @@
 import {
   AlertTriangle,
+  BarChart3,
   BookOpen,
+  Globe,
   KeyRound,
   Link2,
   Package,
   Rocket,
+  UserRound,
+  Wallet,
+  Webhook,
   type LucideIcon,
 } from "lucide-react";
 
-export const API_BASE_URL = "https://api.linkapprove.com/v1";
-export const DASHBOARD_URL = "https://app.linkapprove.com";
-export const API_KEYS_URL = "https://app.linkapprove.com/publisher/account/api-keys";
-export const RATE_LIMIT_PER_MINUTE = 600;
+import { API_BASE_URL, DASHBOARD_URL, SITE_URL } from "@/config";
+
+export { API_BASE_URL, DASHBOARD_URL, SITE_URL };
+export const API_KEYS_URL = `${DASHBOARD_URL}/publisher/account/api-keys`;
+export const RATE_LIMIT_PER_MINUTE = 120;
 export const MONTHLY_QUOTA = 250000;
 export const API_VERSION = "2026-05-01";
 
@@ -76,6 +82,7 @@ export const NAV_GROUPS: TNavGroup[] = [
         icon: KeyRound,
         sections: [
           { id: "bearer-tokens", label: "Bearer tokens" },
+          { id: "verify-a-key", label: "Verify a key" },
           { id: "scopes", label: "Scopes" },
           { id: "key-lifecycle", label: "Key lifecycle" },
           { id: "handling-a-leak", label: "Handling a leak" },
@@ -86,6 +93,21 @@ export const NAV_GROUPS: TNavGroup[] = [
   {
     title: "Core resources",
     pages: [
+      {
+        path: "/channels",
+        label: "Channels",
+        eyebrow: "Core resources",
+        summary:
+          "The sites, newsletters and social accounts your traffic comes from, and how to verify them.",
+        icon: Globe,
+        sections: [
+          { id: "the-channel-object", label: "The channel object" },
+          { id: "list-channels", label: "List channels" },
+          { id: "retrieve-a-channel", label: "Retrieve a channel" },
+          { id: "create-a-channel", label: "Create a channel" },
+          { id: "verify-a-channel", label: "Verify a channel" },
+        ],
+      },
       {
         path: "/programs",
         label: "Programs",
@@ -98,6 +120,7 @@ export const NAV_GROUPS: TNavGroup[] = [
           { id: "list-programs", label: "List programs" },
           { id: "retrieve-a-program", label: "Retrieve a program" },
           { id: "apply-to-a-program", label: "Apply to a program" },
+          { id: "list-applications", label: "List applications" },
         ],
       },
       {
@@ -105,13 +128,85 @@ export const NAV_GROUPS: TNavGroup[] = [
         label: "Tracking Links",
         eyebrow: "Core resources",
         summary:
-          "Issue the /go redirect that turns a click into an attributed conversion.",
+          "Issue the go.linkapprove.com redirect that turns a click into an attributed conversion.",
         icon: Link2,
         sections: [
           { id: "the-link-object", label: "The tracking link object" },
           { id: "create-a-link", label: "Create a tracking link" },
           { id: "sub-ids", label: "Sub IDs and attribution" },
           { id: "deep-links", label: "Deep links" },
+          { id: "list-links", label: "List tracking links" },
+          { id: "retrieve-a-link", label: "Retrieve a tracking link" },
+        ],
+      },
+      {
+        path: "/reports",
+        label: "Reports",
+        eyebrow: "Core resources",
+        summary:
+          "Clicks, conversions and earnings for a date range, grouped by program, channel, day or sub ID.",
+        icon: BarChart3,
+        sections: [
+          { id: "the-report-row", label: "The report row" },
+          { id: "performance-report", label: "Performance report" },
+          { id: "group-by", label: "Grouping" },
+          { id: "data-freshness", label: "Data freshness" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Money & account",
+    pages: [
+      {
+        path: "/payments",
+        label: "Payments",
+        eyebrow: "Money & account",
+        summary:
+          "Your balance by state, the commissions credited to it, and every withdrawal with its invoice.",
+        icon: Wallet,
+        sections: [
+          { id: "how-money-moves", label: "How money moves" },
+          { id: "retrieve-balance", label: "Retrieve your balance" },
+          { id: "list-transactions", label: "List transactions" },
+          { id: "list-withdrawals", label: "List withdrawals" },
+          { id: "retrieve-a-withdrawal", label: "Retrieve a withdrawal" },
+        ],
+      },
+      {
+        path: "/account",
+        label: "Account",
+        eyebrow: "Money & account",
+        summary:
+          "Your publisher profile and the payout destinations on file, masked.",
+        icon: UserRound,
+        sections: [
+          { id: "retrieve-account", label: "Retrieve your account" },
+          { id: "list-payment-methods", label: "List payment methods" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Events",
+    pages: [
+      {
+        path: "/webhooks",
+        label: "Webhooks",
+        eyebrow: "Events",
+        summary:
+          "A signed POST to your server when a conversion arrives or changes status.",
+        icon: Webhook,
+        sections: [
+          { id: "how-webhooks-work", label: "How webhooks work" },
+          { id: "events", label: "Events and payloads" },
+          { id: "verify-signatures", label: "Verify the signature" },
+          { id: "retries", label: "Retries and disabling" },
+          { id: "register-an-endpoint", label: "Register an endpoint" },
+          { id: "manage-endpoints", label: "Manage endpoints" },
+          { id: "rotate-the-secret", label: "Rotate the secret" },
+          { id: "send-a-test-event", label: "Send a test event" },
+          { id: "deliveries", label: "Deliveries and replay" },
         ],
       },
     ],

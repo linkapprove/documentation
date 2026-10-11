@@ -17,6 +17,16 @@ const valueOf = (param: TParamSpec, values: TParamValues) =>
 const isNumeric = (param: TParamSpec) =>
   param.type === "integer" || param.type === "number";
 
+const isList = (param: TParamSpec) => param.type === "string[]";
+
+const listItems = (raw: string) =>
+  raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => JSON.stringify(item))
+    .join(", ");
+
 const resolvePath = (endpoint: TEndpointSpec, values: TParamValues) =>
   endpoint.params
     .filter((param) => param.in === "path")
@@ -44,7 +54,19 @@ const bodyEntries = (endpoint: TEndpointSpec, values: TParamValues) =>
     key: param.name,
     raw: valueOf(param, values),
     numeric: isNumeric(param),
+    list: isList(param),
   }));
+
+const renderValue = (
+  entry: { raw: string; numeric: boolean; list: boolean },
+  listOpen = "[",
+  listClose = "]"
+) =>
+  entry.list
+    ? `${listOpen}${listItems(entry.raw)}${listClose}`
+    : entry.numeric
+      ? entry.raw
+      : JSON.stringify(entry.raw);
 
 const jsonBody = (
   endpoint: TEndpointSpec,
@@ -54,12 +76,7 @@ const jsonBody = (
   const entries = bodyEntries(endpoint, values);
   if (!entries.length) return "";
   const lines = entries
-    .map(
-      (entry) =>
-        `${indent}  "${entry.key}": ${
-          entry.numeric ? entry.raw : JSON.stringify(entry.raw)
-        }`
-    )
+    .map((entry) => `${indent}  "${entry.key}": ${renderValue(entry)}`)
     .join(",\n");
   return `{\n${lines}\n${indent}}`;
 };
@@ -72,6 +89,8 @@ type TLiteralOptions = {
   open?: string;
   close?: string;
   trailing?: string;
+  listOpen?: string;
+  listClose?: string;
 };
 
 const literalBody = (
@@ -85,6 +104,8 @@ const literalBody = (
     open = "{",
     close = "}",
     trailing = "",
+    listOpen = "[",
+    listClose = "]",
   }: TLiteralOptions
 ) => {
   const entries = bodyEntries(endpoint, values);
@@ -92,9 +113,11 @@ const literalBody = (
   const lines = entries
     .map(
       (entry) =>
-        `${indent}${step}${quote(entry.key)}${arrow} ${
-          entry.numeric ? entry.raw : JSON.stringify(entry.raw)
-        }`
+        `${indent}${step}${quote(entry.key)}${arrow} ${renderValue(
+          entry,
+          listOpen,
+          listClose
+        )}`
     )
     .join(",\n");
   return `${open}\n${lines}${trailing}\n${indent}${close}`;
@@ -114,7 +137,9 @@ export function generateSamples(
   const curlLines = [
     `curl${method === "GET" ? "" : ` -X ${method}`} "${url}" \\`,
   ];
-  curlLines.push(`  -H "Authorization: Bearer ${shellToken}"${hasBody ? " \\" : ""}`);
+  curlLines.push(
+    `  -H "Authorization: Bearer ${shellToken}"${hasBody ? " \\" : ""}`
+  );
   if (hasBody) {
     curlLines.push(`  -H "Content-Type: application/json" \\`);
     curlLines.push(`  -d '${jsonBody(endpoint, values, "  ")}'`);
@@ -162,9 +187,7 @@ export function generateSamples(
     .filter(Boolean)
     .join("\n");
 
-  const phpToken = token
-    ? `Bearer ${token}`
-    : `Bearer {$_ENV['${ENV_NAME}']}`;
+  const phpToken = token ? `Bearer ${token}` : `Bearer {$_ENV['${ENV_NAME}']}`;
 
   const phpOptions = [
     `    CURLOPT_RETURNTRANSFER => true,`,
@@ -202,13 +225,19 @@ export function generateSamples(
     .join("\n");
 
   const goBody = hasBody
-    ? `\tpayload, _ := json.Marshal(map[string]any${literalBody(endpoint, values, {
-        indent: "\t",
-        step: "\t",
-        quote: (key) => `"${key}"`,
-        arrow: ":",
-        trailing: ",",
-      })})\n\n`
+    ? `\tpayload, _ := json.Marshal(map[string]any${literalBody(
+        endpoint,
+        values,
+        {
+          indent: "\t",
+          step: "\t",
+          quote: (key) => `"${key}"`,
+          arrow: ":",
+          trailing: ",",
+          listOpen: "[]string{",
+          listClose: "}",
+        }
+      )})\n\n`
     : "";
 
   const goRequest = hasBody
@@ -310,7 +339,7 @@ req.body = JSON.dump(${literalBody(endpoint, values, {
 `
     : ""
 }
-res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
   http.request(req)
 end
 

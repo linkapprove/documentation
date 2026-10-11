@@ -3,7 +3,15 @@ import { ArrowRight } from "lucide-react";
 import { DocLayout } from "@/components/doc-layout";
 import { CodeBlock } from "@/components/code-block";
 import { ApiRunner } from "@/components/api-runner";
-import { Callout, Code, Lead, List, P, Section } from "@/components/prose";
+import {
+  Callout,
+  Code,
+  DocLink,
+  Lead,
+  List,
+  P,
+  Section,
+} from "@/components/prose";
 import { Endpoint } from "@/components/endpoint";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { API_BASE_URL, API_KEYS_URL, pageByPath } from "@/constants/navigation";
@@ -14,7 +22,7 @@ const EXPORT_KEY = [
   {
     language: "bash",
     label: "Shell",
-    code: `export LINKAPPROVE_API_KEY="lk_9f2c4a71e8b350d6c1f4a7e2b8d90c53"
+    code: `export LINKAPPROVE_API_KEY="la_9f2c4a71e8b350d6c1f4a7e2b8d90c53"
 
 curl ${API_BASE_URL}/programs \\
   -H "Authorization: Bearer $LINKAPPROVE_API_KEY"`,
@@ -23,7 +31,7 @@ curl ${API_BASE_URL}/programs \\
     language: "bash",
     label: ".env",
     code: `# never commit this file
-LINKAPPROVE_API_KEY=lk_9f2c4a71e8b350d6c1f4a7e2b8d90c53`,
+LINKAPPROVE_API_KEY=la_9f2c4a71e8b350d6c1f4a7e2b8d90c53`,
   },
 ];
 
@@ -90,28 +98,27 @@ export default function Quickstart() {
           >
             Account → API Keys
           </a>
-          . Give the key a name, pick its scopes, and copy the secret — it is
+          . Give the key a name, pick its scopes, and copy the secret. It is
           shown exactly once.
         </Lead>
 
         <P>
-          For this walkthrough you need three scopes:{" "}
-          <Code>programs:write</Code>, <Code>links:write</Code> and{" "}
-          <Code>reports:read</Code>. The <em>Link automation</em> preset grants
-          all three.
+          For this walkthrough choose custom scopes rather than a preset, and
+          grant four: <Code>programs:read</Code>, <Code>programs:write</Code>,{" "}
+          <Code>links:write</Code> and <Code>reports:read</Code>.
         </P>
 
         <Callout variant="warning" title="Keep it out of your repo">
-          A key is a bearer credential — anyone holding it acts as you, inside
+          A key is a bearer credential. Anyone holding it acts as you, inside
           its scopes. Read it from the environment, never from source, and never
           ship it to a browser.
         </Callout>
 
         <Callout variant="tip" title="Paste it into the runners below">
-          Every endpoint on this site has a <em>Try it</em> panel. Paste your key
-          into any one of them and it is reused across the whole site for this
-          browser tab — and injected into the code samples so you can copy a
-          working request.
+          Every endpoint on this site has a <em>Try it</em> panel. Paste your
+          key into any one of them and it is reused across the whole site for
+          this browser tab, and it is filled into the code samples so you can
+          copy a working request.
         </Callout>
       </Section>
 
@@ -122,20 +129,22 @@ export default function Quickstart() {
       >
         <P>
           Programs are the merchant campaigns you can promote. Filter the
-          catalogue down to something you would actually place — a category you
-          write about, on a payout model you like.
+          catalogue down to something you would actually place, like a category
+          you write about, on a payout model you like.
         </P>
 
         <Endpoint method="GET" path="/programs" scope="programs:read" />
 
         <P>
           You get back a paginated envelope. Note the <Code>id</Code> on the
-          program you want — that is what a tracking link is minted against.
+          program you want. That is what a tracking link is minted against.
         </P>
 
         <Callout variant="info" title="Approval comes first">
-          A program with <Code>approvalType: "manual"</Code> needs an
-          application before you can mint links against it. See{" "}
+          Every program needs an approved application on your channel before you
+          can mint links against it. <Code>approvalType: "auto"</Code> approves
+          the moment you apply; <Code>"manual"</Code> is reviewed by the
+          LinkApprove team first. See{" "}
           <Link
             to="/programs#apply-to-a-program"
             className="font-medium text-accent underline decoration-accent/30 underline-offset-4"
@@ -162,7 +171,8 @@ export default function Quickstart() {
         <P>
           <Code>url</Code> in the response is the link you place. A visitor
           clicking it hits our redirect, gets logged, and lands on the merchant
-          with your attribution attached.
+          with your attribution attached. Calling it again with the same inputs
+          returns the same link with <Code>200</Code>.
         </P>
       </Section>
 
@@ -173,7 +183,7 @@ export default function Quickstart() {
       >
         <P>
           Clicks appear within about ten minutes. Conversions arrive when the
-          upstream network reports them — in real time for networks that post
+          upstream network reports them: in real time for networks that post
           back, and on a six-hour pull for the rest.
         </P>
 
@@ -186,17 +196,28 @@ export default function Quickstart() {
         <List
           items={[
             <>
-              <Code>commission</Code> is what you have earned;{" "}
-              <Code>pending</Code> is reported but not yet cleared by the
-              merchant.
+              Money sits in <Code>earnings</Code>, one entry per currency and
+              never summed across currencies. In each entry{" "}
+              <Code>commission</Code> is what you have earned and{" "}
+              <Code>pending</Code> is reported by the network but not yet
+              approved.
             </>,
             <>
-              Group by <Code>program</Code>, <Code>channel</Code>,{" "}
-              <Code>subId</Code> or <Code>day</Code>.
+              Group by <Code>program</Code> (the default), <Code>channel</Code>,{" "}
+              <Code>day</Code> or <Code>subId</Code>. A <Code>subId</Code>{" "}
+              grouping reports clicks only.
             </>,
-            <>Ranges are inclusive and capped at 180 days per request.</>,
+            <>
+              Ranges are inclusive <Code>YYYY-MM-DD</Code> dates, capped at 180
+              days per request.
+            </>,
           ]}
         />
+
+        <P>
+          Every row field and grouping is described in the{" "}
+          <DocLink to="/reports">Reports reference</DocLink>.
+        </P>
       </Section>
 
       <Section id="next-steps" title="Next steps">
