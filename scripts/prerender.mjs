@@ -5,7 +5,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
 const SERVER_DIST = path.join(ROOT, "dist-ssr");
-const OG_IMAGE = { path: "/og-image.png", width: 1200, height: 630 };
+const OG_IMAGE = {
+  path: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "LinkApprove API Documentation",
+};
 const NOT_FOUND_URL = "/__not-found__";
 
 const {
@@ -53,6 +58,7 @@ const toHead = ({ title, description, url }) =>
       ? `<link rel="canonical" href="${url}" />`
       : `<meta name="robots" content="noindex" />`,
     `<meta property="og:type" content="website" />`,
+    `<meta property="og:locale" content="en_US" />`,
     `<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}" />`,
     `<meta property="og:title" content="${escapeHtml(title)}" />`,
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
@@ -60,10 +66,12 @@ const toHead = ({ title, description, url }) =>
     `<meta property="og:image" content="${siteUrl}${OG_IMAGE.path}" />`,
     `<meta property="og:image:width" content="${OG_IMAGE.width}" />`,
     `<meta property="og:image:height" content="${OG_IMAGE.height}" />`,
+    `<meta property="og:image:alt" content="${OG_IMAGE.alt}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
     `<meta name="twitter:image" content="${siteUrl}${OG_IMAGE.path}" />`,
+    `<meta name="twitter:image:alt" content="${OG_IMAGE.alt}" />`,
     gaMeasurementId
       ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"></script>`
       : "",
