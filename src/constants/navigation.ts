@@ -30,6 +30,7 @@ export type TDocSection = {
 export type TDocPage = {
   path: string;
   label: string;
+  title: string;
   eyebrow: string;
   summary: string;
   description: string;
@@ -49,6 +50,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/overview",
         label: "Overview",
+        title: "Affiliate Marketing API Overview",
         eyebrow: "Introduction",
         summary:
           "One REST API for the programs you run, the links you place and the money you earn.",
@@ -65,6 +67,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/quickstart",
         label: "Quickstart",
+        title: "Affiliate API Quickstart",
         eyebrow: "Introduction",
         summary:
           "From a fresh API key to your first tracking link in about four minutes.",
@@ -82,6 +85,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/authentication",
         label: "Authentication",
+        title: "API Key Authentication",
         eyebrow: "Introduction",
         summary:
           "Bearer keys, scopes, expiry and what to do the moment a secret leaks.",
@@ -104,6 +108,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/channels",
         label: "Channels",
+        title: "Publisher Channels API",
         eyebrow: "Core resources",
         summary:
           "The sites, newsletters and social accounts your traffic comes from, and how to verify them.",
@@ -121,6 +126,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/programs",
         label: "Programs",
+        title: "Affiliate Programs API",
         eyebrow: "Core resources",
         summary:
           "Browse the merchant catalogue, apply on behalf of a channel, track approval state.",
@@ -138,6 +144,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/tracking-links",
         label: "Tracking Links",
+        title: "Affiliate Tracking Links API",
         eyebrow: "Core resources",
         summary:
           "Issue the go.linkapprove.com redirect that turns a click into an attributed conversion.",
@@ -156,6 +163,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/reports",
         label: "Reports",
+        title: "Affiliate Performance Reports API",
         eyebrow: "Core resources",
         summary:
           "Clicks, conversions and earnings for a date range, grouped by program, channel, day or sub ID.",
@@ -177,6 +185,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/payments",
         label: "Payments",
+        title: "Affiliate Payments & Balance API",
         eyebrow: "Money & account",
         summary:
           "Your balance by state, the commissions credited to it, and every withdrawal with its invoice.",
@@ -194,6 +203,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/account",
         label: "Account",
+        title: "Publisher Account API",
         eyebrow: "Money & account",
         summary:
           "Your publisher profile and the payout destinations on file, masked.",
@@ -213,6 +223,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/webhooks",
         label: "Webhooks",
+        title: "Affiliate Conversion Webhooks",
         eyebrow: "Events",
         summary:
           "A signed POST to your server when a conversion arrives or changes status.",
@@ -239,6 +250,7 @@ export const NAV_GROUPS: TNavGroup[] = [
       {
         path: "/errors",
         label: "Errors & Limits",
+        title: "API Errors & Rate Limits",
         eyebrow: "Reference",
         summary:
           "The response envelope, every status code we return, and how throttling behaves.",
@@ -290,4 +302,4 @@ export const pageByPath = (path: string) =>
   DOC_PAGES.find((page) => page.path === path) as TDocPage;
 
 export const toDocumentTitle = (page: TDocPage) =>
-  `${page.label} · ${SITE_NAME}`;
+  `${page.title} · ${SITE_NAME}`;
