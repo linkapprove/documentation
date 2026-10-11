@@ -12,6 +12,12 @@ const OG_IMAGE = {
   alt: "LinkApprove API Documentation",
 };
 const NOT_FOUND_URL = "/__not-found__";
+const TWITTER_HANDLE = "@linkapprove";
+const ORGANIZATION = {
+  name: "LinkApprove",
+  url: "https://linkapprove.com",
+  sameAs: ["https://x.com/linkapprove"],
+};
 
 const {
   render,
@@ -50,7 +56,61 @@ const replaceOnce = (source, pattern, replacement) => {
   return source.replace(pattern, replacement);
 };
 
-const toHead = ({ title, description, url }) =>
+const toStructuredData = ({ page, title, description, url }) => {
+  const organizationId = `${ORGANIZATION.url}/#organization`;
+  const websiteId = `${siteUrl}/#website`;
+  const overviewUrl = `${siteUrl}${DOC_PAGES[0].path}`;
+  const breadcrumbs =
+    url === overviewUrl
+      ? [{ name: SITE_NAME, url }]
+      : [
+          { name: SITE_NAME, url: overviewUrl },
+          { name: page.label, url },
+        ];
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: ORGANIZATION.name,
+        url: ORGANIZATION.url,
+        logo: `${siteUrl}/apple-touch-icon.png`,
+        sameAs: ORGANIZATION.sameAs,
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: SITE_NAME,
+        url: siteUrl,
+        inLanguage: "en",
+        publisher: { "@id": organizationId },
+      },
+      {
+        "@type": "TechArticle",
+        headline: title,
+        description,
+        url,
+        inLanguage: "en",
+        isPartOf: { "@id": websiteId },
+        publisher: { "@id": organizationId },
+        image: `${siteUrl}${OG_IMAGE.path}`,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbs.map((crumb, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: crumb.name,
+          item: crumb.url,
+        })),
+      },
+    ],
+  };
+  return `<script type="application/ld+json">${JSON.stringify(graph).replaceAll("<", "\\u003c")}</script>`;
+};
+
+const toHead = ({ title, description, url, structuredData }) =>
   [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
@@ -68,10 +128,12 @@ const toHead = ({ title, description, url }) =>
     `<meta property="og:image:height" content="${OG_IMAGE.height}" />`,
     `<meta property="og:image:alt" content="${OG_IMAGE.alt}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:site" content="${TWITTER_HANDLE}" />`,
     `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
     `<meta name="twitter:image" content="${siteUrl}${OG_IMAGE.path}" />`,
     `<meta name="twitter:image:alt" content="${OG_IMAGE.alt}" />`,
+    structuredData ?? "",
     gaMeasurementId
       ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"></script>`
       : "",
@@ -95,11 +157,18 @@ const toDocument = ({ head, html }) => {
 
 for (const page of DOC_PAGES) {
   const url = `${siteUrl}${page.path}`;
+  const title = toDocumentTitle(page);
   const document = toDocument({
     head: toHead({
-      title: toDocumentTitle(page),
-      description: page.summary,
+      title,
+      description: page.description,
       url,
+      structuredData: toStructuredData({
+        page,
+        title,
+        description: page.description,
+        url,
+      }),
     }),
     html: render(page.path),
   });

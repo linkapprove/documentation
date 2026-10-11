@@ -32,6 +32,7 @@ export type TDocPage = {
   label: string;
   eyebrow: string;
   summary: string;
+  description: string;
   icon: LucideIcon;
   sections: TDocSection[];
 };
@@ -51,6 +52,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Introduction",
         summary:
           "One REST API for the programs you run, the links you place and the money you earn.",
+        description:
+          "The LinkApprove API lets publishers manage channels, programs, tracking links, reports, payments and webhooks from their own code. Start here.",
         icon: BookOpen,
         sections: [
           { id: "what-you-can-build", label: "What you can build" },
@@ -65,6 +68,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Introduction",
         summary:
           "From a fresh API key to your first tracking link in about four minutes.",
+        description:
+          "Get started with the LinkApprove API: create a key, find a program, apply with your channel and mint your first tracking link in about four minutes.",
         icon: Rocket,
         sections: [
           { id: "create-a-key", label: "Create a key" },
@@ -80,6 +85,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Introduction",
         summary:
           "Bearer keys, scopes, expiry and what to do the moment a secret leaks.",
+        description:
+          "How LinkApprove API keys work: bearer tokens, scopes, expiry, IP allowlists, rolling a secret and what to do if a key leaks.",
         icon: KeyRound,
         sections: [
           { id: "bearer-tokens", label: "Bearer tokens" },
@@ -100,6 +107,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Core resources",
         summary:
           "The sites, newsletters and social accounts your traffic comes from, and how to verify them.",
+        description:
+          "List, create and verify your LinkApprove channels over the API. Websites, newsletters and social accounts, with meta tag verification for sites.",
         icon: Globe,
         sections: [
           { id: "the-channel-object", label: "The channel object" },
@@ -115,6 +124,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Core resources",
         summary:
           "Browse the merchant catalogue, apply on behalf of a channel, track approval state.",
+        description:
+          "Search the LinkApprove program catalogue by category, payout type and status, see your approval state per channel, and apply from your own code.",
         icon: Package,
         sections: [
           { id: "the-program-object", label: "The program object" },
@@ -130,6 +141,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Core resources",
         summary:
           "Issue the go.linkapprove.com redirect that turns a click into an attributed conversion.",
+        description:
+          "Create LinkApprove tracking links with sub IDs and deep links, then list and retrieve them. Every click goes through go.linkapprove.com.",
         icon: Link2,
         sections: [
           { id: "the-link-object", label: "The tracking link object" },
@@ -146,6 +159,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Core resources",
         summary:
           "Clicks, conversions and earnings for a date range, grouped by program, channel, day or sub ID.",
+        description:
+          "Pull LinkApprove clicks, conversions and earnings for any range up to 180 days, grouped by program, channel, day or sub ID.",
         icon: BarChart3,
         sections: [
           { id: "the-report-row", label: "The report row" },
@@ -165,6 +180,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Money & account",
         summary:
           "Your balance by state, the commissions credited to it, and every withdrawal with its invoice.",
+        description:
+          "Read your LinkApprove balance at every stage, the commissions credited to it and your withdrawals with invoices. Read-only by design.",
         icon: Wallet,
         sections: [
           { id: "how-money-moves", label: "How money moves" },
@@ -180,6 +197,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Money & account",
         summary:
           "Your publisher profile and the payout destinations on file, masked.",
+        description:
+          "Retrieve your LinkApprove publisher profile and the payout methods on file, with account numbers masked. Both endpoints are read-only.",
         icon: UserRound,
         sections: [
           { id: "retrieve-account", label: "Retrieve your account" },
@@ -197,6 +216,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Events",
         summary:
           "A signed POST to your server when a conversion arrives or changes status.",
+        description:
+          "Get a signed LinkApprove webhook when a conversion arrives or changes status. Verify the signature, handle retries and replay failed deliveries.",
         icon: Webhook,
         sections: [
           { id: "how-webhooks-work", label: "How webhooks work" },
@@ -221,6 +242,8 @@ export const NAV_GROUPS: TNavGroup[] = [
         eyebrow: "Reference",
         summary:
           "The response envelope, every status code we return, and how throttling behaves.",
+        description:
+          "Every status code and error code the LinkApprove API returns, the response envelope, rate limits, monthly quota and when it is safe to retry.",
         icon: AlertTriangle,
         sections: [
           { id: "the-envelope", label: "The response envelope" },
