@@ -4,3 +4,4 @@ dist-ssr
 *.local
 *.sh
 .DS_Store
+*.env
