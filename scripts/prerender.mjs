@@ -8,10 +8,24 @@ const SERVER_DIST = path.join(ROOT, "dist-ssr");
 const OG_IMAGE = { path: "/og-image.png", width: 1200, height: 630 };
 const NOT_FOUND_URL = "/__not-found__";
 
-const { render, DOC_PAGES, SITE_NAME, SITE_URL, toDocumentTitle } =
-  await import(pathToFileURL(path.join(SERVER_DIST, "entry-server.js")).href);
+const {
+  render,
+  DOC_PAGES,
+  SITE_NAME,
+  SITE_URL,
+  GA_MEASUREMENT_ID,
+  toDocumentTitle,
+} = await import(pathToFileURL(path.join(SERVER_DIST, "entry-server.js")).href);
 
 const siteUrl = SITE_URL.replace(/\/$/, "");
+const gaMeasurementId = /^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID)
+  ? GA_MEASUREMENT_ID
+  : null;
+
+if (GA_MEASUREMENT_ID && !gaMeasurementId)
+  console.warn(
+    `\n⚠️  VITE_GA_MEASUREMENT_ID "${GA_MEASUREMENT_ID}" is not a G- measurement ID, so analytics is left off.\n`
+  );
 
 if (siteUrl.includes("localhost"))
   console.warn(
@@ -50,6 +64,12 @@ const toHead = ({ title, description, url }) =>
     `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
     `<meta name="twitter:image" content="${siteUrl}${OG_IMAGE.path}" />`,
+    gaMeasurementId
+      ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"></script>`
+      : "",
+    gaMeasurementId
+      ? `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","${gaMeasurementId}");</script>`
+      : "",
   ]
     .filter(Boolean)
     .join("\n    ");
@@ -107,5 +127,5 @@ await writeFile(
 await rm(SERVER_DIST, { recursive: true, force: true });
 
 console.log(
-  `Prerendered ${DOC_PAGES.length} pages, 404.html, sitemap.xml and robots.txt for ${siteUrl}`
+  `Prerendered ${DOC_PAGES.length} pages, 404.html, sitemap.xml and robots.txt for ${siteUrl}, analytics ${gaMeasurementId ?? "off"}`
 );

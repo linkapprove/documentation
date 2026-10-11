@@ -11,6 +11,7 @@ export {
   SITE_URL,
   toDocumentTitle,
 } from "@/constants/navigation";
+export { GA_MEASUREMENT_ID } from "@/config";
 
 export function render(url: string): string {
   return renderToString(
