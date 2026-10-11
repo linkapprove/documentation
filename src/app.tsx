@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { TopBar } from "@/components/top-bar";
 import { Sidebar } from "@/components/sidebar";
 import Overview from "@/pages/overview";
@@ -13,6 +13,7 @@ import Payments from "@/pages/payments";
 import Account from "@/pages/account";
 import Webhooks from "@/pages/webhooks";
 import Errors from "@/pages/errors";
+import { SITE_NAME } from "@/constants/navigation";
 import { cn } from "@/utils";
 
 export default function App() {
@@ -59,7 +60,7 @@ export default function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/webhooks" element={<Webhooks />} />
         <Route path="/errors" element={<Errors />} />
-        <Route path="*" element={<Navigate to="/overview" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <footer className="border-t border-line">
@@ -71,5 +72,30 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function NotFound() {
+  useEffect(() => {
+    document.title = `Page not found · ${SITE_NAME}`;
+  }, []);
+
+  return (
+    <main className="mx-auto flex min-h-[60vh] w-full max-w-[110rem] flex-col items-start justify-center gap-4 px-6 py-24 max-md:px-4">
+      <span className="font-mono text-xs text-subtle">404</span>
+      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-[-0.035em] text-ink max-md:text-[2rem]">
+        Page not found
+      </h1>
+      <p className="max-w-xl text-[0.9375rem] leading-relaxed text-subtle">
+        This page does not exist. It may have moved when the docs were
+        reorganised.
+      </p>
+      <Link
+        to="/overview"
+        className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-accent/40 hover:text-accent"
+      >
+        Go to the overview
+      </Link>
+    </main>
   );
 }

@@ -20,18 +20,19 @@ export function Section({
       className="grid scroll-mt-28 grid-cols-[minmax(0,1fr)_minmax(0,26rem)] gap-x-10 gap-y-6 border-line pt-12 first:pt-0 max-xl:grid-cols-1"
     >
       <div className="min-w-0 space-y-5">
-        <a
-          href={`#${id}`}
-          className="group flex items-center gap-2 text-[1.375rem] font-semibold tracking-[-0.02em] text-ink"
-        >
-          {title}
-          <Hash className="h-4 w-4 text-subtle opacity-0 transition-opacity group-hover:opacity-100" />
-        </a>
+        <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-ink">
+          <a href={`#${id}`} className="group flex items-center gap-2">
+            {title}
+            <Hash className="h-4 w-4 text-subtle opacity-0 transition-opacity group-hover:opacity-100" />
+          </a>
+        </h2>
         {children}
       </div>
 
       {panel ? (
-        <div className="min-w-0 self-start xl:sticky xl:top-[5.5rem]">{panel}</div>
+        <div className="min-w-0 self-start xl:sticky xl:top-[5.5rem]">
+          {panel}
+        </div>
       ) : null}
     </section>
   );

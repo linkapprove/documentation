@@ -1,12 +1,14 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "@/app";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { ApiTokenProvider } from "@/contexts/api-token-context";
 import "@/index.css";
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+const root = document.getElementById("root") as HTMLElement;
+
+const app = (
   <StrictMode>
     <ThemeProvider>
       <ApiTokenProvider>
@@ -17,3 +19,6 @@ createRoot(document.getElementById("root") as HTMLElement).render(
     </ThemeProvider>
   </StrictMode>
 );
+
+if (root.hasChildNodes()) hydrateRoot(root, app);
+else createRoot(root).render(app);

@@ -16,6 +16,7 @@ import {
 import { API_BASE_URL, DASHBOARD_URL, SITE_URL } from "@/config";
 
 export { API_BASE_URL, DASHBOARD_URL, SITE_URL };
+export const SITE_NAME = "LinkApprove API Docs";
 export const API_KEYS_URL = `${DASHBOARD_URL}/publisher/account/api-keys`;
 export const RATE_LIMIT_PER_MINUTE = 120;
 export const MONTHLY_QUOTA = 250000;
@@ -264,3 +265,6 @@ export const SEARCH_INDEX: TSearchEntry[] = NAV_GROUPS.flatMap((group) =>
 
 export const pageByPath = (path: string) =>
   DOC_PAGES.find((page) => page.path === path) as TDocPage;
+
+export const toDocumentTitle = (page: TDocPage) =>
+  `${page.label} · ${SITE_NAME}`;

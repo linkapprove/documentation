@@ -23,19 +23,22 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() =>
-    document.documentElement.classList.contains("dark") ? "dark" : "light"
-  );
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    setTheme(
+      document.documentElement.classList.contains("dark") ? "dark" : "light"
+    );
+  }, []);
 
-  const toggleTheme = useCallback(
-    () => setTheme((current) => (current === "dark" ? "light" : "dark")),
-    []
-  );
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.classList.toggle("dark", next === "dark");
+      localStorage.setItem(STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 

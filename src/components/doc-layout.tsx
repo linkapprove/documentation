@@ -2,7 +2,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Sidebar } from "@/components/sidebar";
-import { DOC_PAGES, type TDocPage } from "@/constants/navigation";
+import {
+  DOC_PAGES,
+  toDocumentTitle,
+  type TDocPage,
+} from "@/constants/navigation";
 import { cn } from "@/utils";
 
 export function DocLayout({
@@ -21,6 +25,10 @@ export function DocLayout({
     if (hash) return;
     window.scrollTo({ top: 0 });
   }, [pathname, hash]);
+
+  useEffect(() => {
+    document.title = toDocumentTitle(page);
+  }, [page]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

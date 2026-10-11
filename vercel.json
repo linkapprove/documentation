@@ -1,3 +1,10 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/overview",
+      "permanent": false
+    }
+  ]
 }

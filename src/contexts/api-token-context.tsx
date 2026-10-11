@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -22,9 +23,11 @@ const ApiTokenContext = createContext<ApiTokenContextValue>({
 });
 
 export function ApiTokenProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState(
-    () => sessionStorage.getItem(STORAGE_KEY) ?? ""
-  );
+  const [token, setTokenState] = useState("");
+
+  useEffect(() => {
+    setTokenState(sessionStorage.getItem(STORAGE_KEY) ?? "");
+  }, []);
 
   const setToken = useCallback((value: string) => {
     setTokenState(value);
