@@ -16,7 +16,7 @@ const PROGRAM_OBJECT = [
   "id": 4821,
   "merchantName": "Northpeak Outdoors",
   "merchantDomain": "northpeak.com",
-  "category": "sports_outdoor",
+  "category": "sports_outdoors",
   "payoutType": "cps",
   "payout": "8.00",
   "payoutUnit": "percent",
@@ -52,12 +52,12 @@ const OBJECT_FIELDS = [
   },
   {
     name: "category",
-    type: "string | null",
+    type: "string",
     description: (
       <>
-        The upstream network's own category as a lowercase slug, e.g.{" "}
-        <Code>apparel_footwear_accessories</Code>. Null when the network sends
-        none.
+        The program's LinkApprove category as a lowercase slug, e.g.{" "}
+        <Code>sports_outdoors</Code>. Always one of the values listed under the{" "}
+        <Code>category</Code> filter; <Code>other</Code> when unclassified.
       </>
     ),
   },
@@ -174,10 +174,8 @@ const LIST_PARAMS = [
     type: "string",
     description: (
       <>
-        The network's category as a slug: lowercased, <Code>&amp;amp;</Code>{" "}
-        decoded, every run of other characters turned into <Code>_</Code>. An
-        open set, e.g. <Code>apparel_footwear_accessories</Code> or{" "}
-        <Code>sports_outdoor</Code>.
+        One LinkApprove category as a lowercase slug. The full set is 
+        <Code>clothing_apparel, jewelry_luxury, department_stores_marketplaces, gifts_parties, home_garden, tools_home_improvement, pets, baby_kids, toys_games, computers_electronics, software_saas, internet_web_services, telecom_mobile, health_beauty, healthcare_pharmacy, fitness_nutrition, food_drinks, wine_spirits, travel, hotels_accommodation, transportation_car_rental, automotive, sports_outdoors, financial_services, banking_cards, loans_credit, investing_trading, insurance, real_estate, utilities_energy, business, education_courses, jobs_careers, video_games, arts_crafts_hobbies, books_magazines, media_entertainment, services_tickets, adult, dating, gambling_betting, tobacco_vaping, other</Code>.
       </>
     ),
   },
